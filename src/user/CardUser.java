@@ -1,6 +1,8 @@
 package user;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
@@ -31,31 +33,31 @@ public class CardUser {
 				lineCount++;
 				line = scanner.nextLine();
 				
-				if (line.charAt(10) != ':') {
+				if (line.charAt(9) != ':') {
 					System.err.println("Incorrect Card Number format on file line " + lineCount);
 					continue;
 				}
 				
-				String fileId = line.substring(0, 10);
+				String fileId = line.substring(0, 9);
 				if (!fileId.equals(this.userId)) continue;
 				
 				
 				
-				if (line.charAt(30) != ';') {
+				if (line.charAt(29) != ';') {
 					System.err.println("Incorrect date format on file line " + lineCount);
 					continue;
 				}
 
-				String dateStr = line.substring(11, 30);
+				String dateStr = line.substring(10, 29);
 				Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStr);
 				
 				int index = line.lastIndexOf(':');
-				if (index < 31) {
+				if (index < 30) {
 					System.err.println("Incorrect transaction cost format on file line " + lineCount);
 					continue;
 				}
 				
-				String transCostStr = line.substring(31, index);
+				String transCostStr = line.substring(30, index);
 				double cost = Double.parseDouble(transCostStr);
 				
 				String fundsStr = line.substring(index+1);
@@ -77,7 +79,23 @@ public class CardUser {
 			e.printStackTrace();
 		}
 		
-		System.out.println(profile.toString());
+	}
+	
+	public void writeToFile(double transactionCost) {
+		// Every line should follow format: userId:date;transactionCost:availableFunds
+		 											 //^ notice semi-colon
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String output = this.userId + ":" + format.format(new Date()) + ";";
+		output += (new DecimalFormat(".##")).format(transactionCost) + ":";
+		output += profile.getAvailableFunds() + "\n";
+		
+		try {
+			FileWriter writer = new FileWriter(new File("log.txt"), true);
+			writer.write(output);
+			writer.close();
+		} catch (Exception e) {
+			System.err.println("Unable to write to file");
+		}
 	}
 	
 	public String getUserID() {

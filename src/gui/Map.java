@@ -1,41 +1,73 @@
 package gui;
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 import user.CardUser;
-import user.ExpenseProfile;
 
 import cafe.Cafe;
+import cafe.MealItem;
 
 public class Map extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static DecimalFormat twoDigits = new DecimalFormat(".##");
 	private ArrayList<Cafe> cafes;
 	private CardUser user; // Users profile is public, user.profile. 
 	
 	// GUI
-	private JLabel cscLBL;
-	private JPanel panel1, mapView, profileView;
+	private JLabel cscLBL, prfLBL; // Maybe use JTextArea instead of prfLBL as a JLabel
+	private JPanel panel1, profileView;
+	private ImagePanel mapView;
+	private int LBLwidth = 60, LBLheight = 25;
 	
 	public Map(CardUser user) {
 		this.user = user;
-	}
-	
-	public void load() {
+		this.cafes = new ArrayList<Cafe>();
 		
+		// Initialize meals and cafes (give name, and cost for meals)
+		for (int i = 0; i < 4; i++) {
+			Cafe cafe = new Cafe("Cafe" + i);
+			
+			for (int j = 0; j < 10; j++) {
+				double cost = (Math.random() * 19) + 1;
+				String temp = "" + twoDigits.format(cost);
+				cost = Double.parseDouble(temp);
+				cafe.addMeal(new MealItem("Meal" + j, cost));
+			}
+			cafes.add(cafe);
+		}
+		
+		// set location of cafes on the map
+		cafes.get(0).setLocation(450, 150);
+		cafes.get(1).setLocation(240, 400);
+		cafes.get(2).setLocation(400, 290);
+		cafes.get(3).setLocation(575, 400);
 	}
 	
 	public void open(Container container) {
-		
-		// current size is 1000(X), 700(Y)
+
+		setSize(1000, 700);
 		container.setLayout(new BorderLayout());
 		
 		cscLBL = new JLabel("<html> <font size = 5> Campus Smart Cafe </font></html>");
@@ -45,21 +77,131 @@ public class Map extends JFrame {
 		
 		// Setup profile view
 		JLabel expReportLBL = new JLabel("Expense Report:");
+		prfLBL = new JLabel();
 		JButton reloadBTN = new JButton("Refresh");
+		
+		// Parse and provide user with expense profile when refresh button is pressed
 		reloadBTN.addActionListener( new ActionListener() {     
       		public void actionPerformed(ActionEvent event){    				
       			user.parse();
       			String output = user.profile.toString();
+      			prfLBL.setText(output);
       		} });
 		
+		JTextField textInput = new JTextField(10);
+		JButton monthBudgetBTN = new JButton("Set monthly budget");
+		JButton addFundsBTN = new JButton("Add funds directly");
+		JLabel addFundsLBL = new JLabel();
 		
+		//Implement the act of adding a monthly budget
+		monthBudgetBTN.addActionListener( new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+
+				String funds = textInput.getText();
+				try{
+					double fundsDB = Double.parseDouble(funds);
+//					fundsDB = Math.round(fundsDB * 100.00) / 100.00;
+					
+					String temp = "" + twoDigits.format(fundsDB);
+					fundsDB = Double.parseDouble(temp);
+					
+					// Make sure monthly budget is a positive number
+					if (fundsDB >= 0.0) {
+						user.profile.setMonthlyBudget(fundsDB);
+						
+						// below value is 0.0 because nothing is being purchased,
+						// just letting user know that funds have been updated
+						user.writeToFile(0.0); 
+						addFundsLBL.setText("Monthly budget set to $" + fundsDB);
+					} else addFundsLBL.setText("Invalid input");
+					
+				}
+				catch(NumberFormatException e){
+					addFundsLBL.setText("Invalid input");
+				}
+			}
+		});
+		
+		//Implements the act of adding funds directly
+		addFundsBTN.addActionListener( new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+
+				String funds = textInput.getText();
+				try{
+					double fundsDB = Double.parseDouble(funds);
+//					fundsDB = Math.round(fundsDB * 100.00) / 100.00;
+					
+					
+					String temp = "" + twoDigits.format(fundsDB);
+					fundsDB = Double.parseDouble(temp);
+					
+					// Make sure the funds they are adding are positive
+					if (fundsDB >= 0) {
+						user.profile.addFunds(fundsDB);
+						addFundsLBL.setText("Successfully added $" + fundsDB);
+						
+						// below value is 0.0 because nothing is being purchased,
+						// just letting user know that funds have been updated
+						user.writeToFile(0.0);
+					} else addFundsLBL.setText("Invalid input");
+					
+				}
+				catch(NumberFormatException e){
+					addFundsLBL.setText("Invalid input");
+				}
+			}
+		});
+		
+		// Initialize profile view and add necessary components
 		profileView = new JPanel();
 		profileView.add(expReportLBL);
+		profileView.add(prfLBL);
 		profileView.add(reloadBTN);
+		profileView.add(addFundsLBL);
+		profileView.add(textInput);
+		profileView.add(addFundsBTN);
+		profileView.add(monthBudgetBTN);
+		
+		
+		
 		
 		// Setup map view
-		mapView = new JPanel();
+		BufferedImage buttonIcon = null, image = null;
+		int BTNwidth = 25, BTNheight = 25;	
 		
+		// Resize the button images (cafes) and the background map image for mapView
+		try {
+			buttonIcon = ImageIO.read(new File("cafe.png"));
+			buttonIcon = resize(buttonIcon, BTNwidth, BTNheight);
+			image = resize(ImageIO.read(new File("map.jpg")), this.getSize().width, this.getSize().height - (panel1.getSize().height+40));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		mapView = new ImagePanel(image);
+		mapView.setLayout(null);
+		
+		// Use location set in constructor to place cafes onto the map
+		for (Cafe cafe : cafes) {
+			
+			JLabel cafeNameLBL = new JLabel(cafe.getName());
+			mapView.add(cafeNameLBL);
+			cafeNameLBL.setLocation(cafe.getX(), cafe.getY()+20);
+			cafeNameLBL.setSize(LBLwidth, LBLheight);
+			
+			// Create a button that uses an image as the icon
+			JButton cafeBTN = new JButton(new ImageIcon(buttonIcon));
+			mapView.add(cafeBTN);
+			cafeBTN.setLocation(cafe.getX(), cafe.getY());
+			cafeBTN.setSize(BTNwidth, BTNheight);
+			
+			// When button pressed, open the Cafe GUI
+			cafeBTN.addActionListener( new ActionListener() {     
+	      		public void actionPerformed(ActionEvent event){    				
+	      			cafe.openCafeGUI(user);
+	      		} });
+		}
 		
 		JTabbedPane tabbedPanel = new JTabbedPane();
 		tabbedPanel.addTab("Map", mapView);
@@ -68,5 +210,41 @@ public class Map extends JFrame {
 		container.add(panel1, BorderLayout.NORTH);
 		container.add(tabbedPanel, BorderLayout.CENTER);
 	}
+	
+	// Below function is used to scale an image to a certain size
+	private static BufferedImage resize(BufferedImage img, int width, int height) {
+        Image temp = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = output.createGraphics();
+        g.drawImage(temp, 0, 0, null);
+        g.dispose();
+        return output;
+    }
+
+}
+
+// This class is used to create a panel with an image as the background
+class ImagePanel extends JPanel {
+
+  /**
+	 * 
+	 */
+  private static final long serialVersionUID = 1L;
+  private BufferedImage img;
+
+  public ImagePanel(BufferedImage img) {
+    this.img = img;
+    Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+    System.out.println("image: " + size);
+    setPreferredSize(size);
+    setMinimumSize(size);
+    setMaximumSize(size);
+    setSize(size);
+    setLayout(null);
+  }
+
+  public void paintComponent(Graphics g) {
+    g.drawImage(img, 0, 0, null);
+  }
 
 }

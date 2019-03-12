@@ -35,7 +35,7 @@ public class LogIn extends JFrame {
 		addIdLBL = new JLabel("Enter Card Number: ");
 		userIdTF = new JTextField(15);
 		
-		invalidIdLBL = new JLabel("Invalid Card Number: Must be 10 digits and all numbers");
+		invalidIdLBL = new JLabel("Invalid Card Number: Must be 9 digits and all numbers");
 		invalidIdLBL.setVisible(false);
 		invalidIdLBL.setForeground(Color.red);
 		
@@ -60,6 +60,7 @@ public class LogIn extends JFrame {
 		container.add(panel2, BorderLayout.CENTER);
 		container.add(panel3, BorderLayout.SOUTH);
 		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
@@ -67,8 +68,9 @@ public class LogIn extends JFrame {
 	private void logIn() {
 		String idStr = userIdTF.getText().replaceAll("\\s+","");
 		
-		// Card number must be 10 digits
-		if (idStr.length() != 10) {
+		// Card number must be 9 digits
+		
+		if (idStr.length() != 9) {
 			invalidIdLBL.setVisible(true);
 			return;
 		} else invalidIdLBL.setVisible(false);
@@ -101,7 +103,6 @@ public class LogIn extends JFrame {
 		container.remove(panel2);
 		container.remove(panel3);
 		
-//		map.load();
 		map.open(container);
 	}
 }

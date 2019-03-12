@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class ExpenseProfile {
 	private double availableFunds;
+	private double monthlyBudget;
 	private ArrayList<Expense> expenses;
 	
 	public ExpenseProfile() {
@@ -22,8 +23,14 @@ public class ExpenseProfile {
 		return this.availableFunds;
 	}
 	
-	public void addExpense(Expense expense) {
-		expenses.add(expense);
+	public boolean addExpense(Expense expense) {
+		if (this.availableFunds - expense.getAmount() < 0.0) {
+			return false;
+		} else {
+			this.availableFunds -= expense.getAmount();
+			expenses.add(expense);
+			return true;
+		}
 	}
 	
 	public double sumExpenses() {
@@ -33,6 +40,18 @@ public class ExpenseProfile {
 		}
 		
 		return sum;
+	}
+	
+	public double getMonthlyBudget() {
+		return monthlyBudget;
+	}
+	
+	public boolean setMonthlyBudget(double monthlyBudget) {
+		if (monthlyBudget >= 0.0) {
+			this.monthlyBudget = monthlyBudget;
+			return true;
+		}
+		else return false;
 	}
 	
 	public String toString() {
