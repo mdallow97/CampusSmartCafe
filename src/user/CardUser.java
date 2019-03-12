@@ -13,7 +13,7 @@ public class CardUser {
 	
 	public CardUser(String userId) {
 		this.userId = userId;
-		this.profile = new ExpenseProfile();
+		this.profile = new ExpenseProfile(this);
 	}
 	
 	public void parse() {
@@ -60,7 +60,9 @@ public class CardUser {
 				String transCostStr = line.substring(30, index);
 				double cost = Double.parseDouble(transCostStr);
 				
-				String fundsStr = line.substring(index+1);
+				int semiIndex = line.lastIndexOf(';');
+				
+				String fundsStr = line.substring(index+1, semiIndex);
 				double availableFunds = Double.parseDouble(fundsStr);
 				
 				if (cost < 0.0 || availableFunds < 0.0) {
@@ -70,6 +72,16 @@ public class CardUser {
 					Expense expense = new Expense(cost, date);
 					profile.addExpense(expense);
 					profile.setAvailableFunds(availableFunds);
+				}
+				
+				String monthlyBudgetStr = line.substring(semiIndex+1);
+				double monthlyBudget = Double.parseDouble(monthlyBudgetStr);
+				
+				if (monthlyBudget < 0.0 ) {
+					System.err.println("Invalid negative budget on file line " + lineCount);
+					continue;
+				} else {
+					profile.setMonthlyBudget(monthlyBudget);
 				}
 				// At this point, all valid expenses and the current available funds are stored in the expense profile
 				
@@ -87,7 +99,7 @@ public class CardUser {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String output = this.userId + ":" + format.format(new Date()) + ";";
 		output += (new DecimalFormat(".##")).format(transactionCost) + ":";
-		output += profile.getAvailableFunds() + "\n";
+		output += profile.getAvailableFunds() + ";" + profile.getMonthlyBudget() + "\n";
 		
 		try {
 			FileWriter writer = new FileWriter(new File("log.txt"), true);

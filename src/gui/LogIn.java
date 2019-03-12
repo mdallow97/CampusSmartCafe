@@ -94,6 +94,7 @@ public class LogIn extends JFrame {
 		// Card user creation, and parse the database
 		CardUser user = new CardUser(idStr);
 		user.parse();
+		user.profile.updateMonthlyBudget();
 		
 		Map map = new Map(user);
 		

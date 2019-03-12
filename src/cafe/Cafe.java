@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -114,28 +115,48 @@ public class Cafe {
 		
 		// Upon checkout, each items cost is individually written to the file, 
 		// and cost subtracted from their available funds
-		JButton checkout = new JButton("Checkout");
-		checkout.addActionListener( new ActionListener() {     
-      		public void actionPerformed(ActionEvent event){    				
+		JButton pickUpBTN = new JButton("Checkout (Pick-Up)");
+		pickUpBTN.addActionListener( new ActionListener() {     
+      		public void actionPerformed(ActionEvent event){    		
+      			
+      			if (total > user.profile.getAvailableFunds()) {
+      				errorLBL.setVisible(true);
+      				return;
+      			} else errorLBL.setVisible(false);
+      			
       			for (MealItem meal : cart) {
       				Expense newExp = new Expense(meal.getCost(), new Date());
-      				
-      				// Make sure user can afford expense
-      				if (!user.profile.addExpense(newExp)) {
-      					// Display error message
-      					errorLBL.setVisible(true);
-      				} else {
-      					// Write to file
-      					errorLBL.setVisible(false);
-      					System.out.println("here");
-      					user.writeToFile(meal.getCost());
-      					
-      					cartString = "";
-      				}
+      				if (!user.profile.addExpense(newExp)) System.err.println("Total exceeds available funds");
+      				user.writeToFile(meal.getCost());
+      			
       			}
+      			
+      			provideTimeAndPlace(cartString, "pick-up");
+      			cafeWindow.dispatchEvent(new WindowEvent(cafeWindow, WindowEvent.WINDOW_CLOSING));
       		} });
 		
-		panel2.add(checkout);
+		JButton eatInBTN = new JButton("Checkout (Eat-In)");
+		eatInBTN.addActionListener( new ActionListener() {     
+      		public void actionPerformed(ActionEvent event){    		
+      			
+      			if (total > user.profile.getAvailableFunds()) {
+      				errorLBL.setVisible(true);
+      				return;
+      			} else errorLBL.setVisible(false);
+      			
+      			for (MealItem meal : cart) {
+      				Expense newExp = new Expense(meal.getCost(), new Date());
+      				if (!user.profile.addExpense(newExp)) System.err.println("Total exceeds available funds");
+      				user.writeToFile(meal.getCost());
+      			
+      			}
+      			
+      			provideTimeAndPlace(cartString, "eating-in");
+      			cafeWindow.dispatchEvent(new WindowEvent(cafeWindow, WindowEvent.WINDOW_CLOSING));
+      		} });
+		
+		panel2.add(pickUpBTN);
+		panel2.add(eatInBTN);
 		panel2.add(totalLBL);
 		panel2.add(errorLBL);
 		
@@ -143,4 +164,30 @@ public class Cafe {
 		cafeWindow.add(panel1, BorderLayout.CENTER);
 		cafeWindow.add(panel2, BorderLayout.SOUTH);
  	}
+	
+	private void provideTimeAndPlace(String cartString, String option) {
+		
+		JFrame messageWindow = new JFrame(this.name);
+		messageWindow.setSize(700, 100);
+		messageWindow.setVisible(true);
+		messageWindow.setLocationRelativeTo(null);
+		
+		Container container = messageWindow.getContentPane();
+		container.setLayout(new BorderLayout());
+		
+		int time = (int) (Math.random() * 19) + 1;
+		String output = "Meal items: " + cartString;
+		output += ", will be available for " + option + " in approximately " + time + " minute(s)";
+		
+		JLabel messageLBL = new JLabel(output);
+		
+		JButton okBTN = new JButton("OK");
+		okBTN.addActionListener( new ActionListener() {     
+      		public void actionPerformed(ActionEvent event){    		
+      			messageWindow.dispatchEvent(new WindowEvent(messageWindow, WindowEvent.WINDOW_CLOSING));
+      		} });
+		
+		container.add(messageLBL, BorderLayout.NORTH);
+		container.add(okBTN, BorderLayout.SOUTH);
+	}
 }
