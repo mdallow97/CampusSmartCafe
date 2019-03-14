@@ -18,11 +18,13 @@ public class ExpenseProfile {
 	}
 	
 	public void setAvailableFunds(double funds) {
-		this.availableFunds = funds;
+		if (funds >= 0.0) this.availableFunds = funds;
+		else System.err.println("Available funds cannot be set to 0");
 	}
 	
 	public void addFunds(double funds) {
-		this.availableFunds += funds;
+		if (funds >= 0.0) this.availableFunds += funds;
+		else System.err.println("Available funds cannot be set to 0");
 	}
 	
 	public double getAvailableFunds() {
@@ -38,16 +40,7 @@ public class ExpenseProfile {
 			return true;
 		}
 	}
-	
-	public double sumExpenses() {
-		double sum = 0.0;
-		for (Expense exp : expenses) {
-			sum += exp.getAmount();
-		}
-		
-		return sum;
-	}
-	
+
 	public double getMonthlyBudget() {
 		return monthlyBudget;
 	}
@@ -74,7 +67,7 @@ public class ExpenseProfile {
 		int pastYear = localDateOfLastExpense.getYear();
 		int currentYear = localCurrent.getYear();
 		
-		if ((pastMonth < currentMonth) && (pastYear <= currentYear)) {
+		if ((pastMonth < currentMonth) || (pastYear < currentYear)) {
 			int yearDif = currentYear - pastYear;
 			int numUpdates = (currentMonth - pastMonth) + (12 * yearDif);
 			double amountToAdd = (double) numUpdates * monthlyBudget;

@@ -33,6 +33,7 @@ public class Map extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static DecimalFormat twoDigits = new DecimalFormat(".##");
 	private ArrayList<Cafe> cafes;
+	private ArrayList<Cafe> vendingMachines;
 	private CardUser user; // Users profile is public, user.profile. 
 	
 	// GUI
@@ -44,25 +45,39 @@ public class Map extends JFrame {
 	public Map(CardUser user) {
 		this.user = user;
 		this.cafes = new ArrayList<Cafe>();
+		this.vendingMachines = new ArrayList<Cafe>();
 		
 		// Initialize meals and cafes (give name, and cost for meals)
 		for (int i = 0; i < 4; i++) {
-			Cafe cafe = new Cafe("Cafe" + i);
+			Cafe cafe = new Cafe("Cafe" + (i+1));
+			Cafe vendingMachine = new Cafe("Vending Machine " + (i+1));
 			
 			for (int j = 0; j < 10; j++) {
 				double cost = (Math.random() * 19) + 1;
 				String temp = "" + twoDigits.format(cost);
 				cost = Double.parseDouble(temp);
-				cafe.addMeal(new MealItem("Meal" + j, cost));
+				cafe.addMeal(new MealItem("Meal" + (j+1), cost));
+				
+				cost = (Math.random() * 4) + 1;
+				temp = "" + twoDigits.format(cost);
+				cost = Double.parseDouble(temp);
+				vendingMachine.addMeal(new MealItem("Snack" + (j+1), cost));
 			}
 			cafes.add(cafe);
+			vendingMachines.add(vendingMachine);
 		}
 		
 		// set location of cafes on the map
-		cafes.get(0).setLocation(450, 150);
+		cafes.get(0).setLocation(460, 150);
 		cafes.get(1).setLocation(240, 400);
-		cafes.get(2).setLocation(400, 290);
+		cafes.get(2).setLocation(390, 290);
 		cafes.get(3).setLocation(575, 400);
+		
+		// set location of vending machines on the map
+		vendingMachines.get(0).setLocation(500, 300);
+		vendingMachines.get(1).setLocation(250, 300);
+		vendingMachines.get(2).setLocation(600, 250);
+		vendingMachines.get(3).setLocation(420, 150);
 	}
 	
 	public void open(Container container) {
@@ -166,13 +181,17 @@ public class Map extends JFrame {
 		
 		
 		// Setup map view
-		BufferedImage buttonIcon = null, image = null;
+		BufferedImage cafeIcon = null, vmIcon = null, image = null;
 		int BTNwidth = 25, BTNheight = 25;	
 		
 		// Resize the button images (cafes) and the background map image for mapView
 		try {
-			buttonIcon = ImageIO.read(new File("cafe.png"));
-			buttonIcon = resize(buttonIcon, BTNwidth, BTNheight);
+			cafeIcon = ImageIO.read(new File("cafe.png"));
+			cafeIcon = resize(cafeIcon, BTNwidth, BTNheight);
+			
+			vmIcon = ImageIO.read(new File("vending_machine.png"));
+			vmIcon = resize(vmIcon, BTNwidth, BTNheight);
+			
 			image = resize(ImageIO.read(new File("map.jpg")), this.getSize().width, this.getSize().height - (panel1.getSize().height+40));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -191,17 +210,35 @@ public class Map extends JFrame {
 			cafeNameLBL.setSize(LBLwidth, LBLheight);
 			
 			// Create a button that uses an image as the icon
-			JButton cafeBTN = new JButton(new ImageIcon(buttonIcon));
+			JButton cafeBTN = new JButton(new ImageIcon(cafeIcon));
 			mapView.add(cafeBTN);
 			cafeBTN.setLocation(cafe.getX(), cafe.getY());
 			cafeBTN.setSize(BTNwidth, BTNheight);
 			
 			// When button pressed, open the Cafe GUI
 			cafeBTN.addActionListener( new ActionListener() {     
-	      		public void actionPerformed(ActionEvent event){    				
-	      			cafe.openCafeGUI(user);
+	      		public void actionPerformed(ActionEvent event){    
+	      			CafeGUI cafeGUI = new CafeGUI(user, cafe);
+	      			cafeGUI.openGUI(false);
 	      		} });
 		}
+		
+		// Use location set in constructor to place vending machines onto the map
+				for (Cafe vendingMachine : vendingMachines) {
+					
+					// Create a button that uses an image as the icon
+					JButton vmBTN = new JButton(new ImageIcon(vmIcon));
+					mapView.add(vmBTN);
+					vmBTN.setLocation(vendingMachine.getX(), vendingMachine.getY());
+					vmBTN.setSize(BTNwidth, BTNheight);
+					
+					// When button pressed, open the Cafe GUI
+					vmBTN.addActionListener( new ActionListener() {     
+			      		public void actionPerformed(ActionEvent event){    	
+			      			CafeGUI vmGUI = new CafeGUI(user, vendingMachine);
+			      			vmGUI.openGUI(true);
+			      		} });
+				}
 		
 		JTabbedPane tabbedPanel = new JTabbedPane();
 		tabbedPanel.addTab("Map", mapView);
