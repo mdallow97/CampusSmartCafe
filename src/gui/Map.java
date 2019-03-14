@@ -1,9 +1,12 @@
 package gui;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +22,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import user.CardUser;
 
@@ -37,7 +42,8 @@ public class Map extends JFrame {
 	private CardUser user; // Users profile is public, user.profile. 
 	
 	// GUI
-	private JLabel cscLBL, prfLBL; // Maybe use JTextArea instead of prfLBL as a JLabel
+	private JLabel cscLBL;
+	private JTextArea prfLBL;
 	private JPanel panel1, profileView;
 	private ImagePanel mapView;
 	private int LBLwidth = 60, LBLheight = 25;
@@ -91,9 +97,11 @@ public class Map extends JFrame {
 		panel1.add(cscLBL);
 		
 		// Setup profile view
-		JLabel expReportLBL = new JLabel("Expense Report:");
-		prfLBL = new JLabel();
-		JButton reloadBTN = new JButton("Refresh");
+		JLabel expReportLBL = new JLabel("Expense Report:   ", SwingConstants.RIGHT);
+		prfLBL = new JTextArea();
+		prfLBL.setEditable(false);
+		
+		JButton reloadBTN = new JButton("Refresh Expense Report");
 		
 		// Parse and provide user with expense profile when refresh button is pressed
 		reloadBTN.addActionListener( new ActionListener() {     
@@ -104,9 +112,16 @@ public class Map extends JFrame {
       		} });
 		
 		JTextField textInput = new JTextField(10);
+		textInput.setBackground(Color.LIGHT_GRAY);
+		
 		JButton monthBudgetBTN = new JButton("Set monthly budget");
+		monthBudgetBTN.setForeground(Color.green);
+		
 		JButton addFundsBTN = new JButton("Add funds directly");
-		JLabel addFundsLBL = new JLabel();
+		addFundsBTN.setForeground(Color.green);
+		
+		JLabel invalidFundsLBL = new JLabel("^^ Enter amount ^^", SwingConstants.CENTER);
+		invalidFundsLBL.setForeground(Color.green);
 		
 		//Implement the act of adding a monthly budget
 		monthBudgetBTN.addActionListener( new ActionListener(){
@@ -115,7 +130,6 @@ public class Map extends JFrame {
 				String funds = textInput.getText();
 				try{
 					double fundsDB = Double.parseDouble(funds);
-//					fundsDB = Math.round(fundsDB * 100.00) / 100.00;
 					
 					String temp = "" + twoDigits.format(fundsDB);
 					fundsDB = Double.parseDouble(temp);
@@ -127,12 +141,18 @@ public class Map extends JFrame {
 						// below value is 0.0 because nothing is being purchased,
 						// just letting user know that funds have been updated
 						user.writeToFile(0.0); 
-						addFundsLBL.setText("Monthly budget set to $" + fundsDB);
-					} else addFundsLBL.setText("Invalid input");
+						
+						invalidFundsLBL.setText("Monthly budget set to $" + fundsDB);
+						invalidFundsLBL.setForeground(Color.green);
+					} else {
+						invalidFundsLBL.setText("^^ Invalid input ^^");
+						invalidFundsLBL.setForeground(Color.red);
+					}
 					
 				}
 				catch(NumberFormatException e){
-					addFundsLBL.setText("Invalid input");
+					invalidFundsLBL.setText("^^ Invalid input ^^");
+					invalidFundsLBL.setForeground(Color.red);
 				}
 			}
 		});
@@ -144,8 +164,6 @@ public class Map extends JFrame {
 				String funds = textInput.getText();
 				try{
 					double fundsDB = Double.parseDouble(funds);
-//					fundsDB = Math.round(fundsDB * 100.00) / 100.00;
-					
 					
 					String temp = "" + twoDigits.format(fundsDB);
 					fundsDB = Double.parseDouble(temp);
@@ -153,34 +171,51 @@ public class Map extends JFrame {
 					// Make sure the funds they are adding are positive
 					if (fundsDB >= 0) {
 						user.profile.addFunds(fundsDB);
-						addFundsLBL.setText("Successfully added $" + fundsDB);
+						invalidFundsLBL.setText("Successfully added $" + fundsDB);
 						
 						// below value is 0.0 because nothing is being purchased,
 						// just letting user know that funds have been updated
 						user.writeToFile(0.0);
-					} else addFundsLBL.setText("Invalid input");
+						invalidFundsLBL.setForeground(Color.green);
+					} else {
+						invalidFundsLBL.setText("^^Invalid input^^");
+						invalidFundsLBL.setForeground(Color.red);
+					}
 					
 				}
 				catch(NumberFormatException e){
-					addFundsLBL.setText("Invalid input");
+					invalidFundsLBL.setText("^^Invalid input^^");
+					invalidFundsLBL.setForeground(Color.red);
 				}
 			}
 		});
 		
+		JButton graphBTN = new JButton("Show monthly expense graph");
+		graphBTN.addActionListener( new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				// Implement graph here
+			}
+		});
+		
 		// Initialize profile view and add necessary components
-		profileView = new JPanel();
-		profileView.add(expReportLBL);
-		profileView.add(prfLBL);
-		profileView.add(reloadBTN);
-		profileView.add(addFundsLBL);
+		profileView = new JPanel(new GridLayout(3,3));
+		
 		profileView.add(textInput);
 		profileView.add(addFundsBTN);
 		profileView.add(monthBudgetBTN);
 		
+		profileView.add(invalidFundsLBL);
+		profileView.add(new JLabel(""));
+		profileView.add(graphBTN);
+		
+		profileView.add(expReportLBL);
+		profileView.add(prfLBL);
+		profileView.add(reloadBTN);
 		
 		
 		
-		// Setup map view
+		
+		// MAP SETUP
 		BufferedImage cafeIcon = null, vmIcon = null, image = null;
 		int BTNwidth = 25, BTNheight = 25;	
 		
