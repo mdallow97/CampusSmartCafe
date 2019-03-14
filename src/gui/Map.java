@@ -1,7 +1,6 @@
 package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -194,6 +193,8 @@ public class Map extends JFrame {
 		graphBTN.addActionListener( new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				// Implement graph here
+				GraphGUI graph = new GraphGUI(user);
+				graph.openGUI();
 			}
 		});
 		

@@ -40,6 +40,10 @@ public class ExpenseProfile {
 			return true;
 		}
 	}
+	
+	public ArrayList<Expense> getExpenses() {
+		return this.expenses;
+	}
 
 	public double getMonthlyBudget() {
 		return monthlyBudget;
