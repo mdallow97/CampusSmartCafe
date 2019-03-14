@@ -214,7 +214,6 @@ public class Map extends JFrame {
 		profileView.add(graphBTN);
 		
 		profileView.add(expReportLBL);
-//		profileView.add(expPrfTA);
 		profileView.add(scroll);
 		profileView.add(reloadBTN);
 		

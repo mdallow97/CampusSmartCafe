@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -29,12 +28,10 @@ public class GraphGUI {
 	
 	public GraphGUI(CardUser user) {
 		this.user = user;
-//		user.parse();
 		this.map = new HashMap<String, ArrayList<Expense>>();
 		
 		for (Expense expense : this.user.profile.getExpenses()) {
 			LocalDate localDate = expense.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//			MonthYear monthYear = new MonthYear(localDate.getMonthValue(), localDate.getYear());
 			
 			String monthYear = "" + localDate.getMonthValue() + ":" + localDate.getYear();
 			
@@ -63,8 +60,6 @@ public class GraphGUI {
 		
 		for (int i = 0; i < 6; i++) {
 
-			
-			
 			String key = "" + month + ":" + year;
 			double total = 0.0;
 			
@@ -97,7 +92,6 @@ public class GraphGUI {
 		}
 		
 		BarChart chart = new BarChart(graphInput);
-//		container.setLayout(new BorderLayout());
 		chart.setSize(700, 600);
 		graphWindow.setSize(750, 700);
 		container.add(chart);

@@ -21,6 +21,8 @@ public class CardUser {
 		// Parse the log and store information
 		// Every line should follow format: userId:date;transactionCost:availableFunds
 													 //^ notice semi-colon
+		this.profile = new ExpenseProfile(this);
+		
 		Scanner scanner;
 		try {
 			(new File("log.txt")).createNewFile(); // creates a new file if it does not exist
