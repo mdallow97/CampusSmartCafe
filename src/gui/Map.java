@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -42,7 +43,7 @@ public class Map extends JFrame {
 	
 	// GUI
 	private JLabel cscLBL;
-	private JTextArea prfLBL;
+	private JTextArea expPrfTA;
 	private JPanel panel1, profileView;
 	private ImagePanel mapView;
 	private int LBLwidth = 60, LBLheight = 25;
@@ -97,8 +98,9 @@ public class Map extends JFrame {
 		
 		// Setup profile view
 		JLabel expReportLBL = new JLabel("Expense Report:   ", SwingConstants.RIGHT);
-		prfLBL = new JTextArea();
-		prfLBL.setEditable(false);
+		expPrfTA = new JTextArea();
+		expPrfTA.setEditable(false);
+		
 		
 		JButton reloadBTN = new JButton("Refresh Expense Report");
 		
@@ -107,7 +109,7 @@ public class Map extends JFrame {
       		public void actionPerformed(ActionEvent event){    				
       			user.parse();
       			String output = user.profile.toString();
-      			prfLBL.setText(output);
+      			expPrfTA.setText(output);
       		} });
 		
 		JTextField textInput = new JTextField(10);
@@ -198,6 +200,8 @@ public class Map extends JFrame {
 			}
 		});
 		
+		JScrollPane scroll = new JScrollPane(expPrfTA, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
 		// Initialize profile view and add necessary components
 		profileView = new JPanel(new GridLayout(3,3));
 		
@@ -210,7 +214,8 @@ public class Map extends JFrame {
 		profileView.add(graphBTN);
 		
 		profileView.add(expReportLBL);
-		profileView.add(prfLBL);
+//		profileView.add(expPrfTA);
+		profileView.add(scroll);
 		profileView.add(reloadBTN);
 		
 		

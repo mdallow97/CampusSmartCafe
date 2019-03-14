@@ -1,9 +1,12 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import user.CardUser;
@@ -48,6 +52,7 @@ public class GraphGUI {
 	
 	public void openGUI() {
 		JFrame graphWindow = new JFrame(user.getUserID() + "'s Expense Profile");
+		Container container = graphWindow.getContentPane();
 		
 		String [] dates = new String[6];
 		double [] totals = new double[6];
@@ -75,8 +80,6 @@ public class GraphGUI {
 				month = 12;
 				year--;
 			}
-			
-			System.out.println("Date: " + dates[5-i] + " Total: " + total);
 		}
 		
 		Map<Color, MonthlyExpense> graphInput = new LinkedHashMap<Color, MonthlyExpense>();
@@ -94,9 +97,34 @@ public class GraphGUI {
 		}
 		
 		BarChart chart = new BarChart(graphInput);
-		chart.setSize(700, 500);
-		graphWindow.setSize(800, 600);
-		graphWindow.getContentPane().add(chart);
+//		container.setLayout(new BorderLayout());
+		chart.setSize(700, 600);
+		graphWindow.setSize(750, 700);
+		container.add(chart);
+		
+		for (int i = 0; i < 6; i++) {
+			JLabel dateLBL = new JLabel(dates[i]);
+			JLabel totalLBL = new JLabel("$" + new DecimalFormat(".##").format(totals[i]));
+			int x = ((chart.getWidth() /6) * i) + 40;
+			int y = chart.getHeight() + 15;
+			
+			dateLBL.setLocation(x, y);
+			dateLBL.setSize(60, 25);
+			
+			totalLBL.setLocation(x, y+30);
+			totalLBL.setSize(60, 25);
+			
+			container.add(dateLBL);
+			container.add(totalLBL);
+		}
+		JLabel dateLBL = new JLabel(dates[5]);
+		int x = (chart.getWidth() /6) * 5;
+		int y = chart.getHeight() + 30;
+		dateLBL.setLocation(x+50, y);
+		dateLBL.setSize(60, 25);
+		container.add(dateLBL);
+		
+		
 		graphWindow.setVisible(true);
 		graphWindow.setLocationRelativeTo(null);
 		
@@ -138,8 +166,10 @@ class BarChart extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private Map<Color, Double> bars = new LinkedHashMap<Color, Double>();
+	
 
     public BarChart(Map<Color, MonthlyExpense> data) {
+    	
             for (Color keyColor : data.keySet()) {
                     MonthlyExpense monthlyExpense = data.get(keyColor);
                     bars.put(keyColor, new Double(monthlyExpense.getTotal()));
@@ -151,7 +181,7 @@ class BarChart extends JPanel {
             // Cast the graphics objects to Graphics2D
             Graphics2D g = (Graphics2D) gp;
             // determine longest bar
-            double max = Integer.MIN_VALUE;
+            double max = Double.MIN_VALUE;
             for (Double value : bars.values()) {
                     max = Math.max(max, value);
             }
@@ -167,6 +197,7 @@ class BarChart extends JPanel {
                     g.setColor(Color.black);
                     g.drawRect(x, getHeight() - height, width, height);
                     x += (width + 2);
+                    
             }
     }
 
