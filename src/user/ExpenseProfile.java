@@ -2,19 +2,14 @@ package user;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.time.LocalDate;
-import java.time.ZoneId;
 
 public class ExpenseProfile {
 	private double availableFunds;
 	private double monthlyBudget;
 	private ArrayList<Expense> expenses;
-	private CardUser user;
 	
-	public ExpenseProfile(CardUser user) {
+	public ExpenseProfile() {
 		this.expenses = new ArrayList<Expense>();
-		this.user = user;
 	}
 	
 	public void setAvailableFunds(double funds) {
@@ -55,29 +50,6 @@ public class ExpenseProfile {
 			return true;
 		}
 		else return false;
-	}
-	
-	public void updateMonthlyBudget() {
-		if (expenses.size() == 0 || this.monthlyBudget == 0.0) return;
-		Date dateOfLastExpense = expenses.get(expenses.size()-1).getDate();
-		LocalDate localDateOfLastExpense = dateOfLastExpense.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		
-		Date current = new Date();
-		LocalDate localCurrent = current.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		
-		int pastMonth = localDateOfLastExpense.getMonthValue();
-		int currentMonth = localCurrent.getMonthValue();
-		
-		int pastYear = localDateOfLastExpense.getYear();
-		int currentYear = localCurrent.getYear();
-		
-		if ((pastMonth < currentMonth) || (pastYear < currentYear)) {
-			int yearDif = currentYear - pastYear;
-			int numUpdates = (currentMonth - pastMonth) + (12 * yearDif);
-			double amountToAdd = (double) numUpdates * monthlyBudget;
-			addFunds(Math.abs(amountToAdd));
-			user.writeToFile(0.0); // Update with new funds
-		}
 	}
 	
 	public String toString() {

@@ -41,13 +41,6 @@ public class Map extends JFrame {
 	private ArrayList<Cafe> vendingMachines;
 	private CardUser user; // Users profile is public, user.profile. 
 	
-	// GUI
-	private JLabel cscLBL;
-	private JTextArea expPrfTA;
-	private JPanel panel1, profileView;
-	private ImagePanel mapView;
-	private int LBLwidth = 60, LBLheight = 25;
-	
 	public Map(CardUser user) {
 		this.user = user;
 		this.cafes = new ArrayList<Cafe>();
@@ -87,6 +80,12 @@ public class Map extends JFrame {
 	}
 	
 	public void open(Container container) {
+		
+		JLabel cscLBL;
+		JTextArea expPrfTA;
+		JPanel panel1, profileView;
+		ImagePanel mapView;
+		int LBLwidth = 60, LBLheight = 25;
 
 		setSize(1000, 700);
 		container.setLayout(new BorderLayout());
@@ -297,30 +296,32 @@ public class Map extends JFrame {
         g.dispose();
         return output;
     }
+	
+	// This class is used to create a panel with an image as the background
+	class ImagePanel extends JPanel {
+
+	  /**
+		 * 
+		 */
+	  private static final long serialVersionUID = 1L;
+	  private BufferedImage img;
+
+	  public ImagePanel(BufferedImage img) {
+	    this.img = img;
+	    Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+	    setPreferredSize(size);
+	    setMinimumSize(size);
+	    setMaximumSize(size);
+	    setSize(size);
+	    setLayout(null);
+	  }
+
+	  public void paintComponent(Graphics g) {
+	    g.drawImage(img, 0, 0, null);
+	  }
+
+	}
 
 }
 
-// This class is used to create a panel with an image as the background
-class ImagePanel extends JPanel {
 
-  /**
-	 * 
-	 */
-  private static final long serialVersionUID = 1L;
-  private BufferedImage img;
-
-  public ImagePanel(BufferedImage img) {
-    this.img = img;
-    Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
-    setPreferredSize(size);
-    setMinimumSize(size);
-    setMaximumSize(size);
-    setSize(size);
-    setLayout(null);
-  }
-
-  public void paintComponent(Graphics g) {
-    g.drawImage(img, 0, 0, null);
-  }
-
-}

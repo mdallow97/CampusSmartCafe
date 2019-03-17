@@ -133,69 +133,73 @@ public class GraphGUI {
 		
 		return sum;
 	}
-}
-
-class MonthlyExpense {
-	private String date;
-	private double total;
 	
-	public MonthlyExpense(String date, double total) {
-		this.date = date;
-		this.total = total;
+	class MonthlyExpense {
+		private String date;
+		private double total;
+		
+		public MonthlyExpense(String date, double total) {
+			this.date = date;
+			this.total = total;
+		}
+		
+		public double getTotal() {
+			return this.total;
+		}
+		
+		public String getDate() {
+			return this.date;
+		}
 	}
 	
-	public double getTotal() {
-		return this.total;
-	}
-	
-	public String getDate() {
-		return this.date;
+	class BarChart extends JPanel {
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Map<Color, Double> bars = new LinkedHashMap<Color, Double>();
+		
+
+	    public BarChart(Map<Color, MonthlyExpense> data) {
+	    	
+	            for (Color keyColor : data.keySet()) {
+	                    MonthlyExpense monthlyExpense = data.get(keyColor);
+	                    bars.put(keyColor, new Double(monthlyExpense.getTotal()));
+	            }
+	    }
+
+	    protected void paintComponent(Graphics gp) {
+	            super.paintComponent(gp);
+	            // Cast the graphics objects to Graphics2D
+	            Graphics2D g = (Graphics2D) gp;
+	            // determine longest bar
+	            double max = Double.MIN_VALUE;
+	            for (Double value : bars.values()) {
+	                    max = Math.max(max, value);
+	            }
+	            // paint bars
+
+	            int width = (getWidth() / bars.size()) - 2;
+	            int x = 1;
+	            for (Color color : bars.keySet()) {
+	                    double value = bars.get(color);
+	                    int height = (int) ((getHeight() - 5) * ((double) value / max));
+	                    g.setColor(color);
+	                    g.fillRect(x, getHeight() - height, width, height);
+	                    g.setColor(Color.black);
+	                    g.drawRect(x, getHeight() - height, width, height);
+	                    x += (width + 2);
+	                    
+	            }
+	    }
+
+	    public Dimension getPreferredSize() {
+	            return new Dimension(bars.size() * 10 + 2, 50);
+	    }
 	}
 }
 
-class BarChart extends JPanel {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	private Map<Color, Double> bars = new LinkedHashMap<Color, Double>();
-	
 
-    public BarChart(Map<Color, MonthlyExpense> data) {
-    	
-            for (Color keyColor : data.keySet()) {
-                    MonthlyExpense monthlyExpense = data.get(keyColor);
-                    bars.put(keyColor, new Double(monthlyExpense.getTotal()));
-            }
-    }
 
-    protected void paintComponent(Graphics gp) {
-            super.paintComponent(gp);
-            // Cast the graphics objects to Graphics2D
-            Graphics2D g = (Graphics2D) gp;
-            // determine longest bar
-            double max = Double.MIN_VALUE;
-            for (Double value : bars.values()) {
-                    max = Math.max(max, value);
-            }
-            // paint bars
 
-            int width = (getWidth() / bars.size()) - 2;
-            int x = 1;
-            for (Color color : bars.keySet()) {
-                    double value = bars.get(color);
-                    int height = (int) ((getHeight() - 5) * ((double) value / max));
-                    g.setColor(color);
-                    g.fillRect(x, getHeight() - height, width, height);
-                    g.setColor(Color.black);
-                    g.drawRect(x, getHeight() - height, width, height);
-                    x += (width + 2);
-                    
-            }
-    }
-
-    public Dimension getPreferredSize() {
-            return new Dimension(bars.size() * 10 + 2, 50);
-    }
-}

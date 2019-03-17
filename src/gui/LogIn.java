@@ -18,18 +18,23 @@ public class LogIn extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	Container container;
-	JPanel panel1, panel2, panel3;
+
 	JTextField userIdTF;
-	JLabel addIdLBL, invalidIdLBL;
-	JButton logInBTN;
+	JLabel invalidIdLBL;
+	
+	Map map;
+	CardUser user;
 	
 	
 	public LogIn() {
 		super("Campus Smart Cafe");
 		setSize(500, 200);
 		
-		container = getContentPane();
+		JPanel panel1, panel2, panel3;
+		JLabel addIdLBL;
+		JButton logInBTN;
+		
+		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		
 		addIdLBL = new JLabel("Enter Card Number: ");
@@ -89,20 +94,18 @@ public class LogIn extends JFrame {
 			return;
 		} else invalidIdLBL.setVisible(false);
 		
-		
+		Container container = getContentPane();
 		
 		// Card user creation, and parse the database
-		CardUser user = new CardUser(idStr);
+		user = new CardUser(idStr);
 		user.parse();
-		user.profile.updateMonthlyBudget();
+		user.updateMonthlyBudget();
 		
-		Map map = new Map(user);
+		map = new Map(user);
 		
 		setSize(1000, 700);
 		setLocationRelativeTo(null);
-		container.remove(panel1);
-		container.remove(panel2);
-		container.remove(panel3);
+		container.removeAll();
 		
 		map.open(container);
 	}
